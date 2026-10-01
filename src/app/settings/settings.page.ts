@@ -36,6 +36,10 @@ export class SettingsPage {
     await this.say(await this.notifications.enablePush());
   }
 
+  async testPush(): Promise<void> {
+    await this.say(await this.notifications.sendTestPush());
+  }
+
   async refresh(): Promise<void> {
     await this.store.refresh();
     await this.say(this.store.stale() ? 'Still offline, keeping saved data' : 'Market data updated and saved for offline use');

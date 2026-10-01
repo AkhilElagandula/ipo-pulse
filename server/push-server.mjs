@@ -3,6 +3,9 @@
 //   GET  /vapidPublicKey   -> public key the PWA subscribes with
 //   POST /subscribe        -> { type: 'web', subscription } | { type: 'native', platform, token }
 //   POST /notify           -> { title, body, url } sends to every web subscriber
+//   POST /send-test        -> { subscription, delaySeconds } sends one test push back to that device
+//
+// The hosted (Vercel) version of these endpoints lives in /api.
 //
 // Try it:  curl -X POST localhost:4300/notify -H 'Content-Type: application/json' \
 //            -d '{"title":"New IPO","body":"Vardhan Green Hydrogen opens Monday","url":"/tabs/ipos/vardhanh2"}'
@@ -52,6 +55,21 @@ const server = createServer(async (req, res) => {
       }
       save();
       return res.writeHead(201).end();
+    }
+
+    if (req.method === 'POST' && req.url === '/send-test') {
+      const { subscription, delaySeconds = 0 } = await readJson(req);
+      if (!subscription?.endpoint) return res.writeHead(400).end('bad subscription');
+      await new Promise((r) => setTimeout(r, Math.min(Math.max(Number(delaySeconds) || 0, 0), 8) * 1000));
+      await webpush.sendNotification(subscription, JSON.stringify({
+        notification: {
+          title: 'IPO Pulse test',
+          body: 'Push notifications are working 🎉 Tap to open IPOs.',
+          icon: 'assets/icons/icon-192.png',
+          data: { url: '/tabs/ipos', onActionClick: { default: { operation: 'navigateLastFocusedOrOpen', url: '/tabs/ipos' } } },
+        },
+      }));
+      return res.writeHead(200, { 'Content-Type': 'application/json' }).end(JSON.stringify({ sent: true }));
     }
 
     if (req.method === 'POST' && req.url === '/notify') {

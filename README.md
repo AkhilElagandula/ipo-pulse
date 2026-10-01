@@ -38,6 +38,22 @@ curl -X POST localhost:4300/notify -H 'Content-Type: application/json' \
   -d '{"title":"New IPO","body":"Vardhan Green Hydrogen opens Monday","url":"/tabs/ipos/vardhanh2"}'
 ```
 
+## Push on Vercel
+
+On Vercel, the push server runs as functions in `api/`, on the same domain as the app:
+
+| Endpoint | Purpose | Needs |
+|---|---|---|
+| `GET /api/vapidPublicKey` | Public key the browser subscribes with | VAPID keys |
+| `POST /api/send-test` | Pushes one test notification back to the device that asked (Settings → Send test) | VAPID keys |
+| `POST /api/subscribe` | Saves a device for broadcasts | Upstash Redis |
+| `POST /api/notify` | Broadcasts to all saved devices; requires `Authorization: Bearer $PUSH_ADMIN_TOKEN` | Redis + token |
+
+Environment variables (Project → Settings → Environment Variables): `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`,
+`VAPID_SUBJECT`, `PUSH_ADMIN_TOKEN`. To create them, run `npx web-push generate-vapid-keys`, or use the values in the
+git-ignored `.env.vercel.local`. Upstash, added from the Vercel Marketplace, sets `KV_REST_API_URL` and `KV_REST_API_TOKEN`.
+Changing the VAPID keys stops every existing subscription from working.
+
 ## Install on a phone
 
 PWAs need HTTPS. Deploy `www/` to Netlify, Vercel, Firebase Hosting or similar, and rewrite all routes to `index.html`. Then:
