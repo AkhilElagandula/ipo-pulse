@@ -1,11 +1,33 @@
 // Shared helpers for the push functions. Files starting with "_" are not routes on Vercel.
 import webpush from 'web-push';
 
-const { VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT = 'mailto:admin@example.com' } = process.env;
+/** Forgives common copy-paste slips in dashboard env vars: whitespace, quotes, a pasted "KEY=" prefix. */
+function envValue(name) {
+  let v = (process.env[name] ?? '').trim();
+  if (v.startsWith(`${name}=`)) v = v.slice(name.length + 1).trim();
+  return v.replace(/^(['"])(.*)\1$/, '$2').trim();
+}
 
-export const vapidPublicKey = VAPID_PUBLIC_KEY ?? '';
-export const pushConfigured = Boolean(VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY);
-if (pushConfigured) webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+const VAPID_PUBLIC_KEY = envValue('VAPID_PUBLIC_KEY');
+const VAPID_PRIVATE_KEY = envValue('VAPID_PRIVATE_KEY');
+let VAPID_SUBJECT = envValue('VAPID_SUBJECT') || 'mailto:admin@example.com';
+if (/^[^:\s]+@[^:\s]+$/.test(VAPID_SUBJECT)) VAPID_SUBJECT = `mailto:${VAPID_SUBJECT}`;
+
+export const vapidPublicKey = VAPID_PUBLIC_KEY;
+
+/** Why push can't work, or null. Never includes the secret values themselves. */
+export let configError = null;
+if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
+  configError = 'set VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY';
+} else {
+  try {
+    webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+  } catch (e) {
+    const which = /subject/i.test(e.message) ? 'VAPID_SUBJECT' : /public/i.test(e.message) ? 'VAPID_PUBLIC_KEY' : 'VAPID_PRIVATE_KEY';
+    configError = `${which} is invalid: ${e.message.replace(/\. .*$/, '')}`;
+  }
+}
+export const pushConfigured = configError === null;
 
 // Only real browser push services; stops the functions being used to POST to arbitrary URLs.
 const PUSH_HOSTS = [/\.googleapis\.com$/, /\.mozilla\.com$/, /\.push\.apple\.com$/, /\.notify\.windows\.com$/];

@@ -1,4 +1,4 @@
-import { isValidSubscription, pushConfigured, send } from './_push.mjs';
+import { configError, isValidSubscription, pushConfigured, send } from './_push.mjs';
 
 /**
  * Sends one test notification back to the device that asked, after an optional
@@ -6,7 +6,7 @@ import { isValidSubscription, pushConfigured, send } from './_push.mjs';
  */
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
-  if (!pushConfigured) return res.status(503).send('Push is not configured');
+  if (!pushConfigured) return res.status(503).send(`Push is not configured: ${configError}`);
   const { subscription, delaySeconds = 0 } = req.body ?? {};
   if (!isValidSubscription(subscription)) return res.status(400).send('bad subscription');
 
