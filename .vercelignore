@@ -5,3 +5,4 @@ www
 .vscode
 server/.vapid.json
 server/.subscriptions.json
+.env*.local

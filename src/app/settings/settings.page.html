@@ -44,7 +44,7 @@
         <p>New IPO announcements and GMP moves, even when the app is closed.</p>
       </ion-label>
       @if (notifications.pushEnabled()) {
-        <ion-note slot="end" color="success">On</ion-note>
+        <ion-button slot="end" fill="outline" (click)="testPush()">Send test</ion-button>
       } @else {
         <ion-button slot="end" (click)="enablePush()">Enable</ion-button>
       }

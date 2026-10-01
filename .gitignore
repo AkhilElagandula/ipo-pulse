@@ -75,3 +75,6 @@ server/.subscriptions.json
 
 # Vercel
 .vercel
+
+# Local secrets
+.env*.local

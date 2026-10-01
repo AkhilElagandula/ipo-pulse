@@ -21,7 +21,7 @@
   "dataGroups": [
     {
       "name": "market-api",
-      "urls": ["/api/**"],
+      "urls": ["/api/market/**"],
       "cacheConfig": {
         "strategy": "freshness",
         "maxSize": 50,

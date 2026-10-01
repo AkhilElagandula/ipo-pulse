@@ -1,4 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { SwPush } from '@angular/service-worker';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { PushNotifications } from '@capacitor/push-notifications';
@@ -93,7 +94,14 @@ export class NotificationsService {
         if (!this.swPush.isEnabled) {
           return 'Web push needs the service worker, which only runs in a production build (npm run build:pwa).';
         }
-        const key = await fetch(`${environment.pushServerUrl}/vapidPublicKey`).then((r) => r.text());
+        if (!('PushManager' in window)) {
+          return isIos()
+            ? 'On iPhone, push only works in the installed app: tap Share → Add to Home Screen, then open IPO Pulse from your home screen.'
+            : "This browser doesn't support push notifications.";
+        }
+        const keyRes = await fetch(`${environment.pushServerUrl}/vapidPublicKey`);
+        if (!keyRes.ok) return 'The push server is not configured yet (missing VAPID keys).';
+        const key = await keyRes.text();
         const sub = await this.swPush.requestSubscription({ serverPublicKey: key });
         await this.registerWithServer({ type: 'web', subscription: sub.toJSON() });
       }
@@ -106,6 +114,30 @@ export class NotificationsService {
       }
       if (e instanceof TypeError) return 'Could not reach the push server.';
       return `Could not enable push: ${(e as Error).message}`;
+    }
+  }
+
+  /**
+   * Asks the server to push one notification back to this device after a few
+   * seconds, so you can close the app and watch it arrive.
+   */
+  async sendTestPush(): Promise<string> {
+    if (!this.swPush.isEnabled) return 'Push needs the installed or production app.';
+    const sub = await firstValueFrom(this.swPush.subscription);
+    if (!sub) {
+      this.pushEnabled.set(false);
+      return 'This device is not subscribed. Tap Enable first.';
+    }
+    try {
+      const res = await fetch(`${environment.pushServerUrl}/send-test`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subscription: sub.toJSON(), delaySeconds: 5 }),
+        keepalive: true,
+      });
+      return res.ok ? 'Sent. It should arrive in about 5 seconds, even if you close the app.' : `Push server error (${res.status}).`;
+    } catch {
+      return 'Sending… if you closed the app, the notification will still arrive.';
     }
   }
 
@@ -144,4 +176,8 @@ function idFor(ipoId: string): number {
   let h = 0;
   for (const ch of ipoId) h = (Math.imul(h, 31) + ch.charCodeAt(0)) | 0;
   return ((h & 0x1fffffff) << 1) + 2;
+}
+
+function isIos(): boolean {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }

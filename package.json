@@ -35,7 +35,8 @@
     "@ionic/angular": "^9.0.0",
     "ionicons": "^8.1.0",
     "rxjs": "~7.8.0",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@angular/build": "22.1.8",
@@ -50,8 +51,7 @@
     "node": "^24.21.0",
     "typescript": "~6.0.0",
     "typescript-eslint": "^8.61.0",
-    "vitest": "~4.0.18",
-    "web-push": "^3.6.7"
+    "vitest": "~4.0.18"
   },
   "description": "IPO Pulse: Indian IPO tracker and stock screener (Ionic + Angular PWA)",
   "engines": {
