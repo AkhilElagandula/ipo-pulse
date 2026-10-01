@@ -1,0 +1,88 @@
+<ion-header [translucent]="true">
+  <ion-toolbar><ion-title>Settings</ion-title></ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar><ion-title size="large">Settings</ion-title></ion-toolbar>
+  </ion-header>
+
+  @if (!native.isNative && !native.installed()) {
+    <ion-list-header><ion-label>App</ion-label></ion-list-header>
+    <ion-list lines="inset" [inset]="true">
+      <ion-item>
+        <ion-icon slot="start" name="phone-portrait-outline" aria-hidden="true"></ion-icon>
+        <ion-label class="ion-text-wrap">
+          <h3>Install on your phone</h3>
+          @if (native.canInstall()) {
+            <p>Runs full-screen from your home screen and works offline.</p>
+          } @else {
+            <p>iPhone: tap Share → Add to Home Screen. Android: browser menu → Install app.</p>
+          }
+        </ion-label>
+        @if (native.canInstall()) {
+          <ion-button slot="end" (click)="native.install()">Install</ion-button>
+        }
+      </ion-item>
+    </ion-list>
+  }
+
+  <ion-list-header><ion-label>Notifications</ion-label></ion-list-header>
+  <ion-list lines="inset" [inset]="true">
+    <ion-item>
+      <ion-icon slot="start" name="notifications-outline" aria-hidden="true"></ion-icon>
+      <ion-label class="ion-text-wrap">
+        <h3>IPO reminders</h3>
+        <p>{{ notifications.reminders().length }} active. Set them from any upcoming or open IPO.</p>
+      </ion-label>
+      <ion-button slot="end" fill="outline" (click)="testNotification()">Test</ion-button>
+    </ion-item>
+    <ion-item>
+      <ion-icon slot="start" name="megaphone-outline" aria-hidden="true"></ion-icon>
+      <ion-label class="ion-text-wrap">
+        <h3>Push alerts</h3>
+        <p>New IPO announcements and GMP moves, even when the app is closed.</p>
+      </ion-label>
+      @if (notifications.pushEnabled()) {
+        <ion-note slot="end" color="success">On</ion-note>
+      } @else {
+        <ion-button slot="end" (click)="enablePush()">Enable</ion-button>
+      }
+    </ion-item>
+  </ion-list>
+
+  <ion-list-header><ion-label>Data</ion-label></ion-list-header>
+  <ion-list lines="inset" [inset]="true">
+    <ion-item>
+      <ion-icon slot="start" name="cloud-download-outline" aria-hidden="true"></ion-icon>
+      <ion-label class="ion-text-wrap">
+        <h3>Offline copy</h3>
+        <p>
+          @if (store.snapshot(); as s) {
+            Saved {{ s.fetchedAt | date: 'd MMM y, h:mm a' }} · {{ s.ipos.length }} IPOs, {{ s.stocks.length }} stocks
+          } @else {
+            Nothing saved yet
+          }
+        </p>
+      </ion-label>
+      <ion-button slot="end" fill="outline" [disabled]="store.loading()" (click)="refresh()">Refresh</ion-button>
+    </ion-item>
+    <ion-item>
+      <ion-label>Connection</ion-label>
+      <ion-note slot="end" [color]="native.online() ? 'success' : 'warning'">{{ native.online() ? 'Online' : 'Offline' }}</ion-note>
+    </ion-item>
+    <ion-item>
+      <ion-label>Data source</ion-label>
+      <ion-note slot="end">{{ store.snapshot()?.sample ? 'Sample (fictional)' : 'Live feed' }}</ion-note>
+    </ion-item>
+    <ion-item>
+      <ion-label>Running as</ion-label>
+      <ion-note slot="end">{{ native.isNative ? 'Native app (' + native.platform + ')' : native.installed() ? 'Installed PWA' : 'Browser' }}</ion-note>
+    </ion-item>
+  </ion-list>
+
+  <p class="disclaimer">
+    IPO Pulse is an information and screening tool. It is not registered with SEBI as an investment adviser or research analyst,
+    and nothing in it is a recommendation to buy, sell or apply for any security.
+  </p>
+</ion-content>

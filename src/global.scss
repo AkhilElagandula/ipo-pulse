@@ -1,0 +1,177 @@
+/*
+ * App Global CSS
+ * ----------------------------------------------------------------------------
+ * Put style rules here that you want to apply globally. These styles are for
+ * the entire app and not just one component. Additionally, this file can be
+ * used as an entry point to import other CSS/Sass files to be included in the
+ * output CSS.
+ * For more information on global stylesheets, visit the documentation:
+ * https://ionicframework.com/docs/layout/global-stylesheets
+ */
+
+/* Core CSS required for Ionic components to work properly */
+@import "@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+
+/* Optional CSS utils that can be commented out */
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+/**
+ * Ionic Dark Mode
+ * -----------------------------------------------------
+ * For more info, please see:
+ * https://ionicframework.com/docs/theming/dark-mode
+ */
+
+/* @import "@ionic/angular/css/palettes/dark.always.css"; */
+/* @import "@ionic/angular/css/palettes/dark.class.css"; */
+@import '@ionic/angular/css/palettes/dark.system.css';
+
+/* ---- App ---------------------------------------------------------------- */
+
+.up { color: var(--app-up); }
+.down { color: var(--app-down); }
+.muted { color: var(--ion-color-medium); }
+.ml { margin-left: 6px; }
+
+.empty { padding: 32px 16px; text-align: center; color: var(--ion-color-medium); }
+
+.disclaimer {
+  margin: 24px 16px calc(24px + env(safe-area-inset-bottom));
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ion-color-medium);
+}
+
+.explainer { margin: 12px 16px 0; font-size: 13px; line-height: 1.45; color: var(--ion-color-medium); }
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 16px 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+.banner-offline { background: rgba(var(--ion-color-warning-rgb), 0.15); color: var(--ion-color-warning-shade); }
+.banner-sample { background: rgba(var(--ion-color-primary-rgb), 0.1); color: var(--ion-color-primary); }
+
+.chip-row { display: flex; gap: 4px; padding: 8px 12px 0; overflow-x: auto; }
+
+.meta { font-variant-numeric: tabular-nums; }
+
+.end-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 64px;
+  font-variant-numeric: tabular-nums;
+  strong { font-size: 16px; }
+  ion-note { font-size: 11px; }
+}
+
+.rank { width: 20px; text-align: center; font-size: 13px; color: var(--ion-color-medium); }
+.row-spark { width: 72px; margin-inline-end: 8px; }
+
+.score-pill {
+  --pill: var(--ion-color-medium);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  padding: 4px 6px;
+  border-radius: 10px;
+  background: rgba(var(--pill-rgb, 146, 148, 156), 0.14);
+  color: var(--pill);
+  strong { font-size: 18px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  span { font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+  &.big { min-width: 72px; padding: 8px; strong { font-size: 26px; } }
+}
+[data-color='success'] { --pill: var(--ion-color-success); --pill-rgb: var(--ion-color-success-rgb); }
+[data-color='warning'] { --pill: var(--ion-color-warning-shade); --pill-rgb: var(--ion-color-warning-rgb); }
+[data-color='danger'] { --pill: var(--ion-color-danger); --pill-rgb: var(--ion-color-danger-rgb); }
+b[data-color] { color: var(--pill); }
+
+.dual-score { display: flex; flex-direction: column; gap: 2px; font-size: 12px; text-align: right; font-variant-numeric: tabular-nums; }
+
+.filters ion-item { --min-height: 40px; }
+
+.hero {
+  padding: 8px 16px 12px;
+  h1 { margin: 4px 0 8px; font-size: 24px; font-weight: 700; }
+  .price { font-size: 32px; font-variant-numeric: tabular-nums; margin-bottom: 2px; }
+  p { margin: 6px 0; line-height: 1.45; }
+  ion-button { margin-top: 12px; }
+}
+
+.chart { margin: 4px 16px 8px; }
+.range-seg { margin: 0 16px 8px; width: calc(100% - 32px); }
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0 16px 8px;
+}
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--app-surface);
+  span { font-size: 12px; color: var(--ion-color-medium); }
+  strong { font-size: 15px; font-variant-numeric: tabular-nums; }
+}
+
+.bars { padding: 0 16px 8px; }
+.bar-row {
+  display: grid;
+  grid-template-columns: 72px 1fr 60px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 13px;
+  strong { text-align: right; font-variant-numeric: tabular-nums; }
+  ion-progress-bar { height: 8px; border-radius: 4px; }
+}
+
+.score-card {
+  margin: 12px 16px;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--app-surface);
+  header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  h3 { margin: 0 0 2px; font-size: 16px; }
+}
+.factor { padding: 6px 0; }
+.factor-head { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; margin-bottom: 4px; }
+.factor-bar {
+  display: grid;
+  grid-template-columns: 1fr 44px;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  span { text-align: right; font-variant-numeric: tabular-nums; }
+  ion-progress-bar { height: 6px; border-radius: 3px; }
+}
+
+.empty-state {
+  padding: 64px 32px;
+  text-align: center;
+  color: var(--ion-color-medium);
+  ion-icon { font-size: 48px; }
+  h2 { color: var(--ion-text-color); font-size: 18px; }
+}

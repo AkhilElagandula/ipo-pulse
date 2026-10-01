@@ -1,0 +1,75 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Analyze</ion-title>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-segment [value]="horizon()" (ionChange)="horizon.set($any($event.detail.value))">
+      <ion-segment-button value="short"><ion-label>Short term</ion-label></ion-segment-button>
+      <ion-segment-button value="long"><ion-label>Long term</ion-label></ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="onRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <app-data-status></app-data-status>
+
+  <p class="explainer">
+    @if (horizon() === 'short') {
+      <strong>Short term (weeks):</strong> trend vs 20/50-day averages, 1-month momentum, RSI, volume and volatility.
+    } @else {
+      <strong>Long term (years):</strong> ROE, debt, 3-year growth, PEG valuation, 200-day trend and dividends.
+    }
+    Tap a stock to see how each factor scored.
+  </p>
+
+  <ion-searchbar placeholder="Search stocks" [debounce]="150" (ionInput)="query.set($any($event).detail.value ?? '')"></ion-searchbar>
+
+  <ion-list lines="none" class="filters">
+    <ion-item>
+      <ion-select label="Sector" interface="action-sheet" [value]="sector()" (ionChange)="sector.set($event.detail.value)">
+        <ion-select-option value="all">All sectors</ion-select-option>
+        @for (s of sectors(); track s) {
+          <ion-select-option [value]="s">{{ s }}</ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-select label="Minimum score" interface="action-sheet" [value]="minScore()" (ionChange)="minScore.set($event.detail.value)">
+        <ion-select-option [value]="0">Any</ion-select-option>
+        <ion-select-option [value]="50">50+ (Moderate)</ion-select-option>
+        <ion-select-option [value]="70">70+ (Strong)</ion-select-option>
+      </ion-select>
+    </ion-item>
+  </ion-list>
+
+  <ion-list lines="full">
+    @for (r of rows(); track r.a.stock.symbol; let i = $index) {
+      <ion-item [routerLink]="['/tabs/analyze', r.a.stock.symbol]" [queryParams]="{ h: horizon() }" [detail]="false">
+        <div slot="start" class="rank">{{ i + 1 }}</div>
+        <ion-label>
+          <h2>{{ r.a.stock.symbol }}</h2>
+          <p>{{ r.a.stock.name }} · {{ r.a.stock.sector }}</p>
+          <p class="meta">
+            ₹{{ r.a.indicators.price | number: '1.2-2' }}
+            <span [class.up]="r.a.indicators.change1d >= 0" [class.down]="r.a.indicators.change1d < 0">{{ r.a.indicators.change1d | percent: '1.2-2' }}</span>
+          </p>
+        </ion-label>
+        <app-sparkline slot="end" class="row-spark" [values]="r.spark" [width]="72" [height]="32"></app-sparkline>
+        <div slot="end" class="score-pill" [attr.data-color]="strengthColor(r.score)" [attr.aria-label]="'Score ' + r.score + ', ' + strength(r.score)">
+          <strong>{{ r.score }}</strong>
+          <span>{{ strength(r.score) }}</span>
+        </div>
+      </ion-item>
+    } @empty {
+      @if (store.snapshot()) {
+        <p class="empty">No stocks match these filters.</p>
+      }
+    }
+  </ion-list>
+
+  <p class="disclaimer">Scores are rule-based screens on historical data, not predictions or recommendations. Do your own research or consult a SEBI-registered adviser before investing.</p>
+</ion-content>

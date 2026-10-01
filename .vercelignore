@@ -1,0 +1,7 @@
+node_modules
+www
+.angular
+.claude
+.vscode
+server/.vapid.json
+server/.subscriptions.json

@@ -1,0 +1,22 @@
+{
+  "name": "IPO Pulse",
+  "short_name": "IPO Pulse",
+  "description": "Indian IPO tracker and stock screener",
+  "id": "/",
+  "start_url": "/tabs/ipos",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#4338ca",
+  "categories": ["finance"],
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Open IPOs", "url": "/tabs/ipos", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Stock screener", "url": "/tabs/analyze", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

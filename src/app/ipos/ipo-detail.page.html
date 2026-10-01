@@ -1,0 +1,77 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start"><ion-back-button defaultHref="/tabs/ipos"></ion-back-button></ion-buttons>
+    <ion-title>{{ ipo()?.symbol }}</ion-title>
+    @if (ipo(); as ipo) {
+      <ion-buttons slot="end">
+        <ion-button (click)="share()" aria-label="Share"><ion-icon slot="icon-only" name="share-outline"></ion-icon></ion-button>
+        <ion-button (click)="toggleStar()" [attr.aria-label]="watchlist.hasIpo(ipo.id) ? 'Remove from watchlist' : 'Add to watchlist'">
+          <ion-icon slot="icon-only" [name]="watchlist.hasIpo(ipo.id) ? 'star' : 'star-outline'" [color]="watchlist.hasIpo(ipo.id) ? 'warning' : undefined"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    }
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  @if (ipo(); as ipo) {
+    @let st = status()!;
+    <section class="hero">
+      <h1>{{ ipo.name }}</h1>
+      <p>
+        <ion-badge [color]="STATUS_COLOR[st]">{{ STATUS_LABEL[st] }}</ion-badge>
+        <ion-badge color="light" class="ml">{{ ipo.segment }}</ion-badge>
+        <span class="ml muted">{{ ipo.exchange }} · {{ ipo.sector }}</span>
+      </p>
+      <p class="muted">{{ ipo.about }}</p>
+
+      @if (st === 'upcoming' || st === 'open') {
+        <ion-button expand="block" [fill]="notifications.hasReminder(ipo.id) ? 'outline' : 'solid'" (click)="toggleReminder()">
+          <ion-icon slot="start" [name]="notifications.hasReminder(ipo.id) ? 'notifications-off-outline' : 'notifications-outline'"></ion-icon>
+          {{ notifications.hasReminder(ipo.id) ? 'Cancel reminder' : 'Remind me to apply' }}
+        </ion-button>
+      }
+    </section>
+
+    <div class="stat-grid">
+      <div class="stat"><span>Price band</span><strong>₹{{ ipo.priceBand[0] }}–{{ ipo.priceBand[1] }}</strong></div>
+      <div class="stat"><span>Lot size</span><strong>{{ ipo.lotSize }} shares</strong></div>
+      <div class="stat"><span>Min. investment</span><strong>₹{{ minInvestment(ipo) | number }}</strong></div>
+      <div class="stat"><span>Issue size</span><strong>₹{{ ipo.issueSizeCr | number }} Cr</strong></div>
+      @if (st === 'listed') {
+        @let lg = listingGain(ipo);
+        <div class="stat"><span>Listing price</span><strong>₹{{ ipo.listingPrice | number: '1.2-2' }}</strong></div>
+        <div class="stat"><span>Listing gain</span><strong [class.up]="(lg ?? 0) >= 0" [class.down]="(lg ?? 0) < 0">{{ lg | percent: '1.1-1' }}</strong></div>
+      } @else if (ipo.gmp !== null) {
+        @let gg = gmpGain(ipo);
+        <div class="stat"><span>GMP (unofficial)</span><strong>₹{{ ipo.gmp }}</strong></div>
+        <div class="stat"><span>Est. listing gain</span><strong [class.up]="(gg ?? 0) >= 0" [class.down]="(gg ?? 0) < 0">{{ gg | percent: '1.0-0' }}</strong></div>
+      }
+    </div>
+
+    @if (ipo.subscription) {
+      <ion-list-header><ion-label>Subscription · {{ ipo.subscription.total | number: '1.2-2' }}× overall</ion-label></ion-list-header>
+      <div class="bars">
+        @for (b of subBars(); track b.label) {
+          <div class="bar-row">
+            <span>{{ b.label }}</span>
+            <ion-progress-bar [value]="b.ratio" color="primary"></ion-progress-bar>
+            <strong>{{ b.value | number: '1.2-2' }}×</strong>
+          </div>
+        }
+      </div>
+    }
+
+    <ion-list-header><ion-label>Timeline</ion-label></ion-list-header>
+    <ion-list lines="inset">
+      <ion-item><ion-label>Bidding opens</ion-label><ion-note slot="end">{{ ipo.openDate | date: 'EEE, d MMM y' }}</ion-note></ion-item>
+      <ion-item><ion-label>Bidding closes</ion-label><ion-note slot="end">{{ ipo.closeDate | date: 'EEE, d MMM y' }}</ion-note></ion-item>
+      <ion-item><ion-label>Allotment</ion-label><ion-note slot="end">{{ ipo.allotmentDate | date: 'EEE, d MMM y' }}</ion-note></ion-item>
+      <ion-item><ion-label>Listing</ion-label><ion-note slot="end">{{ ipo.listingDate | date: 'EEE, d MMM y' }}</ion-note></ion-item>
+    </ion-list>
+
+    <p class="disclaimer">GMP is an unofficial grey-market indicator and often differs from the actual listing price. This app is for information only and is not investment advice.</p>
+  } @else {
+    <p class="empty">Loading…</p>
+  }
+</ion-content>

@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "pwa",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--yes", "http-server", "www", "-p", "8100", "-c-1", "--proxy", "http://localhost:8100?"],
+      "port": 8100
+    },
+    {
+      "name": "push-server",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["server/push-server.mjs"],
+      "port": 4300
+    }
+  ]
+}

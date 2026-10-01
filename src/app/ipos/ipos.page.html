@@ -1,0 +1,87 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>IPOs</ion-title>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-searchbar placeholder="Search company, symbol, sector" [debounce]="150"
+      (ionInput)="query.set($any($event).detail.value ?? '')"></ion-searchbar>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-segment [value]="filter()" (ionChange)="setFilter($event.detail.value)" [scrollable]="true">
+      <ion-segment-button value="current"><ion-label>Current</ion-label></ion-segment-button>
+      <ion-segment-button value="open"><ion-label>Open</ion-label></ion-segment-button>
+      <ion-segment-button value="upcoming"><ion-label>Upcoming</ion-label></ion-segment-button>
+      <ion-segment-button value="listed"><ion-label>Listed</ion-label></ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="onRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <ion-header collapse="condense">
+    <ion-toolbar><ion-title size="large">IPOs</ion-title></ion-toolbar>
+  </ion-header>
+
+  <app-data-status></app-data-status>
+
+  <div class="chip-row">
+    @for (s of ['all', 'Mainboard', 'SME']; track s) {
+      <ion-chip [outline]="segment() !== s" [color]="segment() === s ? 'primary' : 'medium'" (click)="segment.set($any(s))">
+        <ion-label>{{ s === 'all' ? 'All' : s }}</ion-label>
+      </ion-chip>
+    }
+  </div>
+
+  @if (store.error() && !store.snapshot()) {
+    <p class="empty">{{ store.error() }}</p>
+  } @else if (!store.snapshot()) {
+    <ion-list>
+      @for (i of [1, 2, 3, 4]; track i) {
+        <ion-item><ion-label><ion-skeleton-text [animated]="true" style="width: 70%"></ion-skeleton-text><ion-skeleton-text [animated]="true" style="width: 45%"></ion-skeleton-text></ion-label></ion-item>
+      }
+    </ion-list>
+  } @else {
+    <ion-list lines="full">
+      @for (row of rows(); track row.ipo.id) {
+        <ion-item [routerLink]="['/tabs/ipos', row.ipo.id]" [detail]="true">
+          <ion-label>
+            <div class="row-title">
+              <h2>{{ row.ipo.name }}</h2>
+            </div>
+            <p>
+              <ion-badge [color]="STATUS_COLOR[row.status]">{{ STATUS_LABEL[row.status] }}</ion-badge>
+              <ion-badge color="light" class="ml">{{ row.ipo.segment }}</ion-badge>
+              <span class="ml">{{ row.ipo.sector }}</span>
+            </p>
+            <p class="meta">
+              ₹{{ row.ipo.priceBand[0] }}–{{ row.ipo.priceBand[1] }} ·
+              @if (row.status === 'upcoming') { Opens {{ row.ipo.openDate | date: 'd MMM' }} }
+              @else if (row.status === 'open') { Closes {{ row.ipo.closeDate | date: 'd MMM' }} }
+              @else if (row.status === 'closed') { Lists {{ row.ipo.listingDate | date: 'd MMM' }} }
+              @else { Listed {{ row.ipo.listingDate | date: 'd MMM y' }} }
+            </p>
+          </ion-label>
+          <div slot="end" class="end-metric">
+            @if (row.status === 'listed') {
+              @let g = listingGain(row.ipo);
+              <strong [class.up]="(g ?? 0) >= 0" [class.down]="(g ?? 0) < 0">{{ g | percent: '1.1-1' }}</strong>
+              <ion-note>listing gain</ion-note>
+            } @else if (row.ipo.subscription && row.status !== 'upcoming') {
+              <strong>{{ row.ipo.subscription.total | number: '1.1-1' }}×</strong>
+              <ion-note>subscribed</ion-note>
+            } @else {
+              @let g = gmpGain(row.ipo);
+              <strong [class.up]="(g ?? 0) >= 0" [class.down]="(g ?? 0) < 0">{{ g | percent: '1.0-0' }}</strong>
+              <ion-note>GMP est.</ion-note>
+            }
+          </div>
+        </ion-item>
+      } @empty {
+        <p class="empty">No IPOs match these filters.</p>
+      }
+    </ion-list>
+  }
+</ion-content>

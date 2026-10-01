@@ -1,0 +1,7 @@
+{
+  "name": "ipo-pulse",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

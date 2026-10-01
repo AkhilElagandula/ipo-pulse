@@ -1,0 +1,60 @@
+{
+  "name": "ipo-pulse",
+  "version": "0.0.1",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "lint": "ng lint",
+    "build:pwa": "ng build && npx --yes http-server www -p 8100 -c-1 --proxy http://localhost:8100?",
+    "push-server": "node server/push-server.mjs",
+    "icons": "node scripts/make-icons.mjs",
+    "cap:sync": "ng build && cap sync"
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/common": "22.1.7",
+    "@angular/compiler": "22.1.7",
+    "@angular/core": "22.1.7",
+    "@angular/forms": "22.1.7",
+    "@angular/platform-browser": "22.1.7",
+    "@angular/router": "22.1.7",
+    "@angular/service-worker": "^22.1.7",
+    "@capacitor/app": "8.1.1",
+    "@capacitor/core": "8.5.2",
+    "@capacitor/haptics": "8.0.2",
+    "@capacitor/keyboard": "8.0.5",
+    "@capacitor/local-notifications": "^8.3.1",
+    "@capacitor/network": "^8.0.1",
+    "@capacitor/preferences": "^8.0.1",
+    "@capacitor/push-notifications": "^8.1.2",
+    "@capacitor/share": "^8.0.2",
+    "@capacitor/status-bar": "8.0.3",
+    "@ionic/angular": "^9.0.0",
+    "ionicons": "^8.1.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "22.1.8",
+    "@angular/cli": "22.1.8",
+    "@angular/compiler-cli": "22.1.7",
+    "@angular/language-service": "22.1.7",
+    "@capacitor/cli": "8.5.2",
+    "@ionic/angular-toolkit": "^13.0.0",
+    "angular-eslint": "22.0.0",
+    "eslint": "^10.10.0",
+    "jsdom": "^26.0.0",
+    "node": "^24.21.0",
+    "typescript": "~6.0.0",
+    "typescript-eslint": "^8.61.0",
+    "vitest": "~4.0.18",
+    "web-push": "^3.6.7"
+  },
+  "description": "IPO Pulse: Indian IPO tracker and stock screener (Ionic + Angular PWA)",
+  "engines": {
+    "node": "24.x"
+  }
+}

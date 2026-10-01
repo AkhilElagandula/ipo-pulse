@@ -1,0 +1,78 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start"><ion-back-button defaultHref="/tabs/analyze"></ion-back-button></ion-buttons>
+    <ion-title>{{ symbol() }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="share()" aria-label="Share"><ion-icon slot="icon-only" name="share-outline"></ion-icon></ion-button>
+      <ion-button (click)="toggleStar()" [attr.aria-label]="watchlist.hasStock(symbol()) ? 'Remove from watchlist' : 'Add to watchlist'">
+        <ion-icon slot="icon-only" [name]="watchlist.hasStock(symbol()) ? 'star' : 'star-outline'" [color]="watchlist.hasStock(symbol()) ? 'warning' : undefined"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  @if (analysis(); as a) {
+    <section class="hero">
+      <p class="muted">{{ a.stock.name }} · {{ a.stock.sector }} · {{ a.stock.exchange }}</p>
+      <h1 class="price">₹{{ a.indicators.price | number: '1.2-2' }}</h1>
+      <p [class.up]="rangeReturn() >= 0" [class.down]="rangeReturn() < 0">{{ rangeReturn() | percent: '1.2-2' }} <span class="muted">over {{ range() }}</span></p>
+    </section>
+
+    <app-sparkline class="chart" [values]="series()" [width]="360" [height]="160" [fill]="true"></app-sparkline>
+
+    <ion-segment [value]="range()" (ionChange)="range.set($any($event.detail.value))" class="range-seg">
+      @for (r of ranges; track r) {
+        <ion-segment-button [value]="r"><ion-label>{{ r }}</ion-label></ion-segment-button>
+      }
+    </ion-segment>
+
+    @for (s of scores(); track s.title) {
+      <section class="score-card">
+        <header>
+          <div>
+            <h3>{{ s.title }}</h3>
+            <span class="muted">{{ strength(s.score.score) }}</span>
+          </div>
+          <div class="score-pill big" [attr.data-color]="strengthColor(s.score.score)"><strong>{{ s.score.score }}</strong><span>/ 100</span></div>
+        </header>
+        @for (f of s.score.factors; track f.label) {
+          <div class="factor">
+            <div class="factor-head">
+              <span>{{ f.label }}</span>
+              <span class="muted">{{ f.value }}</span>
+            </div>
+            <div class="factor-bar">
+              <ion-progress-bar [value]="f.points / f.max" [color]="f.points / f.max >= 0.66 ? 'success' : f.points / f.max >= 0.33 ? 'warning' : 'danger'"></ion-progress-bar>
+              <span>{{ f.points | number: '1.0-1' }}/{{ f.max }}</span>
+            </div>
+          </div>
+        }
+      </section>
+    }
+
+    <ion-list-header><ion-label>Fundamentals</ion-label></ion-list-header>
+    <div class="stat-grid">
+      <div class="stat"><span>Market cap</span><strong>₹{{ a.stock.fundamentals.marketCapCr | number }} Cr</strong></div>
+      <div class="stat"><span>P/E</span><strong>{{ a.stock.fundamentals.pe > 0 ? a.stock.fundamentals.pe : 'Loss' }}</strong></div>
+      <div class="stat"><span>P/B</span><strong>{{ a.stock.fundamentals.pb }}</strong></div>
+      <div class="stat"><span>ROE</span><strong>{{ a.stock.fundamentals.roe }}%</strong></div>
+      <div class="stat"><span>Debt / equity</span><strong>{{ a.stock.fundamentals.debtToEquity }}</strong></div>
+      <div class="stat"><span>Dividend yield</span><strong>{{ a.stock.fundamentals.dividendYield }}%</strong></div>
+    </div>
+
+    <ion-list-header><ion-label>Technicals</ion-label></ion-list-header>
+    <div class="stat-grid">
+      <div class="stat"><span>RSI (14)</span><strong>{{ a.indicators.rsi14 | number: '1.1-1' }}</strong></div>
+      <div class="stat"><span>From 52W high</span><strong>{{ a.indicators.fromHigh52w | percent: '1.1-1' }}</strong></div>
+      <div class="stat"><span>50-day avg</span><strong>₹{{ a.indicators.sma50 | number: '1.0-0' }}</strong></div>
+      <div class="stat"><span>200-day avg</span><strong>₹{{ a.indicators.sma200 | number: '1.0-0' }}</strong></div>
+      <div class="stat"><span>1Y return</span><strong [class.up]="a.indicators.return1y >= 0" [class.down]="a.indicators.return1y < 0">{{ a.indicators.return1y | percent: '1.1-1' }}</strong></div>
+      <div class="stat"><span>Volatility</span><strong>{{ a.indicators.volatility | percent: '1.0-0' }}</strong></div>
+    </div>
+
+    <p class="disclaimer">Scores summarise historical data with fixed rules. They are not a forecast or a recommendation to buy or sell.</p>
+  } @else {
+    <p class="empty">Loading…</p>
+  }
+</ion-content>
