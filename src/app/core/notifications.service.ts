@@ -100,7 +100,10 @@ export class NotificationsService {
             : "This browser doesn't support push notifications.";
         }
         const keyRes = await fetch(`${environment.pushServerUrl}/vapidPublicKey`);
-        if (!keyRes.ok) return 'The push server is not configured yet (missing VAPID keys).';
+        if (!keyRes.ok) {
+          const detail = keyRes.status === 503 ? (await keyRes.text()).replace(/^Push is not configured: /, '') : `error ${keyRes.status}`;
+          return `The push server isn't set up correctly (${detail})`;
+        }
         const key = await keyRes.text();
         const sub = await this.swPush.requestSubscription({ serverPublicKey: key });
         await this.registerWithServer({ type: 'web', subscription: sub.toJSON() });
